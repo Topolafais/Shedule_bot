@@ -7,8 +7,6 @@ import openpyxl
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 from dotenv import load_dotenv
-import pandas as pd
-from io import BytesIO
 
 month_names = {
     1: "січень", 2: "лютий", 3: "березень", 4: "квітень",

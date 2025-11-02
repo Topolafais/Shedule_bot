@@ -1,4 +1,4 @@
 .env
+client_secrets
 __pycache__/
 *.pyc
-service_account.json

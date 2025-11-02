@@ -17,7 +17,12 @@ month_names = {
 }
 
 gauth = GoogleAuth()
-gauth.LocalWebserverAuth()
+gauth.LoadCredentialsFile("mycreds.txt")
+if gauth.credentials is None:
+    gauth.ServiceAuth()
+else:
+    gauth.Authorize()
+
 drive = GoogleDrive(gauth)
 load_dotenv()
 token = os.getenv("token")

@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import openpyxl
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
+from dotenv import load_dotenv
 import pandas as pd
 from io import BytesIO
 
@@ -18,9 +19,10 @@ month_names = {
 gauth = GoogleAuth()
 gauth.LocalWebserverAuth()
 drive = GoogleDrive(gauth)
-token = "8307327977:AAFx1PCWYzDJ6dvQJHZUik4kh8ZaUAuLqp4"
+load_dotenv()
+token = os.getenv("token")
 folder = "1DvZAowwZRTFtCnwSUDK_9PHtD71u__-R"
-t = ["8:30", "10:05", "11:55", "13:30", "15:05"]
+t = ["\n  --== 8:30 ==--\n", "\n  --== 10:05 ==--\n", "\n  --== 11:55 ==--\n", "\n  --== 13:30 ==--\n", "\n  --== 15:05 ==--\n"]
 tomorrow = datetime.now() + timedelta(days=1)
 month_name = month_names[tomorrow.month]
 date_str = tomorrow.strftime("%d")
@@ -67,13 +69,14 @@ bot = telebot.TeleBot(token)
 def start(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     item1 = types.KeyboardButton("Розклад на завтра")
-    #item2 = types.KeyboardButton("Вказати группу")
+    item2 = types.KeyboardButton("Вказати группу")
     markup.add(item1)
-    #markup.add(item2)
+    markup.add(item2)
     bot.send_message(message.chat.id, "Привіт. За допомогою цього бота ти можешь дізнатися розклад на завтра!", reply_markup=markup)
 
 @bot.message_handler(content_types=['text'])
 def reply(message):
+    global stolb
     if message.text == "Розклад на завтра":
         sheet = find_file()
         arr = []
@@ -89,23 +92,22 @@ def reply(message):
         markup.add(item1)
         markup.add(item2)
         bot.send_message(message.chat.id, "Вибери свою группу", reply_markup=markup)
-
-@bot.message_handler(content_types=['text'])
-def group(message):
-    if message.text == "Ic 2/1":
+    elif message.text == "Ic 2/1":
         stolb = 6
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         item1 = types.KeyboardButton("Розклад на завтра")
         item2 = types.KeyboardButton("Вказати группу")
         markup.add(item1)
         markup.add(item2)
-    elif message.text == "Ic 2/1":
+        bot.send_message(message.chat.id, "Зрозумів, ти з Ic 2/1", reply_markup=markup)
+    elif message.text == "Ic 2/2":
         stolb = 7
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         item1 = types.KeyboardButton("Розклад на завтра")
         item2 = types.KeyboardButton("Вказати группу")
         markup.add(item1)
         markup.add(item2)
+        bot.send_message(message.chat.id, "Зрозумів, ти з Ic 2/2", reply_markup=markup)
 
 
 bot.infinity_polling()

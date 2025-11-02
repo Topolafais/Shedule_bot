@@ -1,4 +1,4 @@
 .env
 service_account
 __pycache__/
-*.pycc
+*.pyc

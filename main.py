@@ -4,10 +4,32 @@ import telebot
 from telebot import types
 from datetime import datetime, timedelta
 import openpyxl
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
+from pydrive2.auth import GoogleAuth
+from pydrive2.drive import GoogleDrive
+from pydrive2.settings import LoadSettingsFile
 from dotenv import load_dotenv
 from oauth2client.service_account import ServiceAccountCredentials
+
+load_dotenv()
+
+if os.getenv("RENDER"):
+    service_account_info = json.loads(os.getenv("GOOGLE_SERVICE_ACCOUNT"))
+else:
+    with open("service_account.json", "r", encoding="utf-8") as f:
+        service_account_info = json.load(f)
+
+creds = ServiceAccountCredentials.from_json_keyfile_dict(
+    service_account_info, scopes=["https://www.googleapis.com/auth/drive"]
+)
+
+gauth = GoogleAuth()
+gauth.LoadCredentialsFile = None
+gauth.settings = LoadSettingsFile()
+gauth.ServiceAuth(service_account_info)
+
+drive = GoogleDrive(gauth)
+
+token = os.getenv("token")
 
 month_names = {
     1: "січень", 2: "лютий", 3: "березень", 4: "квітень",
@@ -15,29 +37,11 @@ month_names = {
     9: "вересень", 10: "жовтень", 11: "листопад", 12: "грудень"
 }
 
-service_account_info = os.getenv("GOOGLE_SERVICE_ACCOUNT")
-
-if not service_account_info:
-    raise ValueError("Переменная окружения GOOGLE_SERVICE_ACCOUNT не найдена!")
-
-creds_dict = json.loads(service_account_info)
-
-creds = ServiceAccountCredentials.from_json_keyfile_dict(
-    creds_dict, scopes=["https://www.googleapis.com/auth/drive"]
-)
-
-gauth = GoogleAuth()
-gauth.credentials = creds
-
-drive = GoogleDrive(gauth)
-load_dotenv()
-token = os.getenv("token")
 folder = "1DvZAowwZRTFtCnwSUDK_9PHtD71u__-R"
 t = ["\n  --== 8:30 ==--\n", "\n  --== 10:05 ==--\n", "\n  --== 11:55 ==--\n", "\n  --== 13:30 ==--\n", "\n  --== 15:05 ==--\n"]
 tomorrow = datetime.now() + timedelta(days=1)
 month_name = month_names[tomorrow.month]
 date_str = tomorrow.strftime("%d")
-global stolb
 stolb = 6
 
 
@@ -92,7 +96,11 @@ def reply(message):
         sheet = find_file()
         arr = []
         for i in range(16, 25, 2):
-            if sheet[i][stolb].value is not None:
+            if stolb // 2 != 2:
+                if sheet[i][stolb] in sheet.merged_cells:
+                    arr.append(t[int((i - 14) / 2) - 1])
+                    arr.append(sheet[i][stolb - 1].value)
+            elif sheet[i][stolb].value is not None:
                 arr.append(t[int((i - 14) / 2) - 1])
                 arr.append(sheet[i][stolb].value)
         bot.send_message(message.chat.id, '\n'.join(map(str, arr)))

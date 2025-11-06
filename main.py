@@ -12,11 +12,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 load_dotenv()
 
-if os.getenv("RENDER"):
-    service_account_info = json.loads(os.getenv("GOOGLE_SERVICE_ACCOUNT"))
-else:
-    with open("service_account.json", "r", encoding="utf-8") as f:
-        service_account_info = json.load(f)
+service_account_info = json.loads(os.getenv("GOOGLE_SERVICE_ACCOUNT"))
 
 creds = ServiceAccountCredentials.from_json_keyfile_dict(
     service_account_info, scopes=["https://www.googleapis.com/auth/drive"]

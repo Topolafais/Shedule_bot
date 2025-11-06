@@ -1,6 +1,7 @@
 import os
 import json
 import telebot
+from oauth2client.service_account import ServiceAccountCredentials
 from telebot import types
 from datetime import datetime, timedelta
 import openpyxl
@@ -12,19 +13,20 @@ month_names = {
     5: "травень", 6: "червень", 7: "липень", 8: "серпень",
     9: "вересень", 10: "жовтень", 11: "листопад", 12: "грудень"
 }
-
 if "GOOGLE_SERVICE_ACCOUNT" not in os.environ:
     raise ValueError("Переменная окружения GOOGLE_SERVICE_ACCOUNT не найдена!")
 
 service_account_info = json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT"])
 
-with open("service_account.json", "w") as f:
-    json.dump(service_account_info, f)
+# Создаём временные креды напрямую, без файла
+scope = ["https://www.googleapis.com/auth/drive"]
+credentials = ServiceAccountCredentials.from_json_keyfile_dict(service_account_info, scope)
 
 gauth = GoogleAuth()
-gauth.LoadServiceConfigFile("service_account.json")
-gauth.ServiceAuth()
+gauth.auth_method = "service"
+gauth.credentials = credentials
 drive = GoogleDrive(gauth)
+
 
 token = os.getenv("token")
 

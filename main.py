@@ -6,26 +6,24 @@ from datetime import datetime, timedelta
 import openpyxl
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
-from pydrive2.settings import LoadSettingsFile
-from dotenv import load_dotenv
-from oauth2client.service_account import ServiceAccountCredentials
 
-load_dotenv()
+month_names = {
+    1: "січень", 2: "лютий", 3: "березень", 4: "квітень",
+    5: "травень", 6: "червень", 7: "липень", 8: "серпень",
+    9: "вересень", 10: "жовтень", 11: "листопад", 12: "грудень"
+}
 
-service_account_info = json.loads(os.getenv("GOOGLE_SERVICE_ACCOUNT"))
+if "GOOGLE_SERVICE_ACCOUNT" not in os.environ:
+    raise ValueError("Переменная окружения GOOGLE_SERVICE_ACCOUNT не найдена!")
+
+service_account_info = json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT"])
 
 with open("service_account.json", "w") as f:
     json.dump(service_account_info, f)
 
-creds = ServiceAccountCredentials.from_json_keyfile_dict(
-    service_account_info, scopes=["https://www.googleapis.com/auth/drive"]
-)
-
 gauth = GoogleAuth()
-gauth.LoadCredentialsFile = None
-gauth.settings = LoadSettingsFile()
-gauth.ServiceAuth(service_account_info)
-
+gauth.LoadServiceConfigFile("service_account.json")
+gauth.ServiceAuth()
 drive = GoogleDrive(gauth)
 
 token = os.getenv("token")

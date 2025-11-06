@@ -14,6 +14,9 @@ load_dotenv()
 
 service_account_info = json.loads(os.getenv("GOOGLE_SERVICE_ACCOUNT"))
 
+with open("service_account.json", "w") as f:
+    json.dump(service_account_info, f)
+
 creds = ServiceAccountCredentials.from_json_keyfile_dict(
     service_account_info, scopes=["https://www.googleapis.com/auth/drive"]
 )
